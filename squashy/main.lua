@@ -6,7 +6,18 @@ window_info = {
 
 game = {
 	score = 0,
+	highScore = 0,
 	life = 3,
+	checkState = function()
+		if game.life <= 0 then
+			if game.score > game.highScore then
+				game.highScore = game.score
+			end
+
+			game.score = 0
+			game.life = 3
+		end
+	end,
 }
 
 paddle = {
@@ -77,11 +88,13 @@ end
 function _update()
 	paddle.move()
 	ball.move()
+	game.checkState()
 end
 
 function _draw()
 	cls()
 	print("Potuacao: " .. game.score)
+	print("Potuacao mais alta: " .. game.highScore)
 	print("Vidas: " .. game.life)
 	paddle.draw()
 	ball.draw()
