@@ -66,6 +66,7 @@ function Jogador:draw()
 		{ { 1, false }, { 11, false }, { 1, false }, { 11, true } },
 	}
 	sprite_info = sprites[self.direction + 1][flr(self.position)]
+	circ(self.x + 7, self.y + 15, 5, 28)
 	spr(sprite_info[1], self.x, self.y, sprite_info[2])
 end
 
