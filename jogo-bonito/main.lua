@@ -45,45 +45,30 @@ end
 
 function Player:move()
   local movimento = false
+
+  local speed = self.speed
+  local x = 0
+  local y = 0
+
   if btn(0) then
     movimento = true
-    self.x -= self.speed
-    self.hitbox_x -= self.speed
+    x -= speed
     self.direction = 0
-
-    if self:hasBall() then
-      ball.x -= ball.speed
-    end
   end
   if btn(1) then
     movimento = true
-    self.x += self.speed
-    self.hitbox_x += self.speed
+    x += speed
     self.direction = 1
-
-    if self:hasBall() then
-      ball.x += ball.speed
-    end
   end
   if btn(2) then
     movimento = true
-    self.y -= self.speed
-    self.hitbox_y -= self.speed
+    y -= speed
     self.direction = 2
-
-    if self:hasBall() then
-      ball.y -= ball.speed
-    end
   end
   if btn(3) then
     movimento = true
-    self.y += self.speed
-    self.hitbox_y += self.speed
+    y += speed
     self.direction = 3
-
-    if self:hasBall() then
-      ball.y += ball.speed
-    end
   end
 
   self.position += 0.15
@@ -94,6 +79,16 @@ function Player:move()
 
   if self.position >= 5 then
     self.position = 1
+  end
+
+  self.y += y
+  self.x += x
+  self.hitbox_y += y
+  self.hitbox_x += x
+
+  if self:hasBall() then
+    ball.x += x
+    ball.y += y
   end
 end
 
