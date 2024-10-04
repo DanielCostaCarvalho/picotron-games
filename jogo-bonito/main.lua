@@ -6,10 +6,10 @@ game = {
 }
 
 ball = {
-  x = 240,
-  y = 240,
-  hitbox_x = 238,
-  hitbox_y = 238,
+  x = 248,
+  y = 255,
+  hitbox_x = 246,
+  hitbox_y = 253,
   hitbox_size = 4,
   speed = 0,
   acceleretion = 0,
@@ -132,7 +132,6 @@ function Player:move()
   local y = 0
 
   for _, value in pairs(moviment) do
-    printh(value)
     if value then
       if not waiting then
         hypotenuse = true
@@ -191,6 +190,20 @@ function Player:move()
 
   if btn(5) and self:canShoot() then
     ball:kick(moving_x, moving_y, 0, 10)
+  end
+
+  if self.y + y < 76 then
+    y = 0
+  end
+  if self.y + y > 404 then
+    y = 0
+  end
+
+  if self.x + x < 114 then
+    x = 0
+  end
+  if self.x + x > 368 then
+    x = 0
   end
 
   self.y += y
