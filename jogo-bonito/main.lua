@@ -1,10 +1,3 @@
-game = {
-  score = {
-    a = 0,
-    b = 0,
-  },
-}
-
 ball = {
   x = 248,
   y = 255,
@@ -249,13 +242,84 @@ function Player:draw()
   spr(sprite_info.sprite, self.x, self.y, sprite_info.flip)
 end
 
+function Player:new(obj)
+	obj = obj or {}
+
+	setmetatable( obj, {__index = self} )
+
+  obj.hitbox_x = obj.x + 5
+  obj.hitbox_y = obj.y + 12
+
+	return obj
+end
+
+Team = {
+  name = "Home",
+  score = 0,
+  players = {
+  },
+  colors = {
+    shirt_a = 7,
+    shirt_b = 7,
+    shirt_c = 7,
+    shirt_d = 7,
+    short = 5,
+  }
+}
+
+function Team:draw_players()
+  pal(30, self.colors.shirt_a);
+  pal(25, self.colors.shirt_b);
+  pal(23, self.colors.shirt_c);
+  pal(14, self.colors.shirt_d);
+  pal(9, self.colors.short);
+  for player in all(self.players) do
+    player:draw()
+  end
+  pal();
+end
+
+function Team:move()
+  for player in all(self.players) do
+    player:move()
+  end
+end
+
+function Team:new(obj)
+	obj = obj or {}
+
+	setmetatable( obj, {__index = self} )
+
+	obj.players = {}
+
+  x = obj.start or 0
+  for i = 1, 10, 1 do
+    add(obj.players, Player:new({
+      x = 240 + i * 10,
+      y = 240 + x,
+    }))
+  end
+
+	return obj
+end
+
 function _init()
   vid(0) --480x270
   -- vid(3) --240x135
+
+  home = Team:new({name = "Framengo", start = -100, colors = {
+    shirt_a = 8,
+    shirt_b = 5,
+    shirt_c = 5,
+    shirt_d = 8,
+    short = 0,
+  }})
+  away = Team:new({name = "Cortinas"})
 end
 
 function _update()
-  Player:move()
+  home:move()
+  away:move()
   ball:move()
 end
 
@@ -307,8 +371,11 @@ function _draw()
   end
 
   camera(camera_x, camera_y)
-  print("Framengo " .. game.score.a .. "x" .. game.score.b .. " Cortinas", camera_x, camera_y, 0)
+  rectfill(camera_x, camera_y, camera_x + 110, camera_y + 10, 16)
+  rect(camera_x, camera_y, camera_x + 110, camera_y + 10, 1)
+  print(home.name .. " " .. home.score .. "x" .. away.score .. " " .. away.name, camera_x + 2, camera_y + 2, 7)
   ball:draw()
-  Player:draw()
+  home:draw_players()
+  away:draw_players()
   map()
 end
