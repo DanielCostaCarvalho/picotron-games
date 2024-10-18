@@ -153,19 +153,19 @@ function Player:move(moviment)
     speed *= 0.7
   end
 
-  if btn(0) then
+  if moviment.left then
     x -= speed
     self.direction = 0
   end
-  if btn(1) then
+  if moviment.right then
     x += speed
     self.direction = 1
   end
-  if btn(2) then
+  if moviment.up then
     y -= speed
     self.direction = 2
   end
-  if btn(3) then
+  if moviment.down then
     y += speed
     self.direction = 3
   end
@@ -261,7 +261,7 @@ function Player:draw()
   }
   sprite_info = sprites[self.direction + 1][flr(self.position)]
   if self.selecionado then
-    circ(self.hitbox_x + self.hitbox_size / 2, self.hitbox_y + self.hitbox_size / 2, self.hitbox_size, 10)
+    oval(self.shoot_x, self.shoot_y, self.shoot_x + self.shoot_size, self.shoot_y + self.shoot_size, 10)
   end
   spr(sprite_info.sprite, self.x, self.y, sprite_info.flip)
 end
@@ -273,6 +273,8 @@ function Player:new(obj)
 
   obj.hitbox_x = obj.x + 5
   obj.hitbox_y = obj.y + 12
+  obj.shoot_x = obj.x + 3
+  obj.shoot_y = obj.y + 10
 
   return obj
 end
