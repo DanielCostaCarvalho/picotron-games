@@ -1,3 +1,18 @@
+function calcula_distancia(ax, ay, bx, by)
+  x = abs(ax - bx)
+  y = abs(ay - by)
+
+  if x == 0 then
+    return y
+  end
+
+  if y == 0 then
+    return x
+  end
+
+  return sqrt(((x * x) + (y * y)))
+end
+
 ball = {
   x = 248,
   y = 255,
@@ -59,6 +74,8 @@ Player = {
   speed = 1,
   direction = 0,
   position = 1,
+  distancia = 1000,
+  selecionado = false,
 }
 
 function Player:canShoot()
@@ -115,8 +132,7 @@ function Player:touchedBall()
   return is_x and is_y
 end
 
-function Player:move()
-  local moviment = { left = btn(0), right = btn(1), up = btn(2), down = btn(3) }
+function Player:move(moviment)
   local waiting = true
   local hypotenuse = false
 
@@ -211,6 +227,11 @@ function Player:move()
   end
 end
 
+function Player:calcula_distancia()
+  self.distancia = calcula_distancia(self.hitbox_x + self.hitbox_size / 2, self.hitbox_y + self.hitbox_size / 2,
+    ball.hitbox_x, ball.hitbox_y)
+end
+
 function Player:draw()
   sprites = {
     {
@@ -239,18 +260,21 @@ function Player:draw()
     },
   }
   sprite_info = sprites[self.direction + 1][flr(self.position)]
+  if self.selecionado then
+    circ(self.hitbox_x + self.hitbox_size / 2, self.hitbox_y + self.hitbox_size / 2, self.hitbox_size, 10)
+  end
   spr(sprite_info.sprite, self.x, self.y, sprite_info.flip)
 end
 
 function Player:new(obj)
-	obj = obj or {}
+  obj = obj or {}
 
-	setmetatable( obj, {__index = self} )
+  setmetatable(obj, { __index = self })
 
   obj.hitbox_x = obj.x + 5
   obj.hitbox_y = obj.y + 12
 
-	return obj
+  return obj
 end
 
 Team = {
@@ -279,18 +303,44 @@ function Team:draw_players()
   pal();
 end
 
-function Team:move()
-  for player in all(self.players) do
-    player:move()
+function Team:move(player_number)
+  local mais_proximo = nil;
+  local imais_proximo = nil;
+
+  for i, player in ipairs(self.players) do
+    player:calcula_distancia()
+
+    if (not mais_proximo) or mais_proximo.distancia > player.distancia then
+      mais_proximo = player
+      imais_proximo = i
+    end
+
+    player.selecionado = false
+  end
+
+  mais_proximo.selecionado = true
+
+  for i, player in ipairs(self.players) do
+    if i == imais_proximo then
+      player:move(
+        {
+          left = btn(0, player_number),
+          right = btn(1, player_number),
+          up = btn(2, player_number),
+          down = btn(3,
+            player_number)
+        }
+      )
+    end
   end
 end
 
 function Team:new(obj)
-	obj = obj or {}
+  obj = obj or {}
 
-	setmetatable( obj, {__index = self} )
+  setmetatable(obj, { __index = self })
 
-	obj.players = {}
+  obj.players = {}
 
   x = obj.start or 0
   for i = 1, 10, 1 do
@@ -300,26 +350,30 @@ function Team:new(obj)
     }))
   end
 
-	return obj
+  return obj
 end
 
 function _init()
   vid(0) --480x270
   -- vid(3) --240x135
 
-  home = Team:new({name = "Framengo", start = -100, colors = {
-    shirt_a = 8,
-    shirt_b = 5,
-    shirt_c = 5,
-    shirt_d = 8,
-    short = 0,
-  }})
-  away = Team:new({name = "Cortinas"})
+  home = Team:new({
+    name = "Framengo",
+    start = -100,
+    colors = {
+      shirt_a = 8,
+      shirt_b = 5,
+      shirt_c = 5,
+      shirt_d = 8,
+      short = 0,
+    }
+  })
+  away = Team:new({ name = "Cortinas" })
 end
 
 function _update()
-  home:move()
-  away:move()
+  home:move(0)
+  away:move(1)
   ball:move()
 end
 
