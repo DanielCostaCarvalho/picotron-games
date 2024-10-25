@@ -14,6 +14,9 @@ function calcula_distancia(ax, ay, bx, by)
 end
 
 ball = {
+  initial_x = 248,
+  initial_y = 255,
+
   x = 248,
   y = 255,
   hitbox_x = 246,
@@ -74,8 +77,8 @@ Player = {
   speed = 1,
   direction = 0,
   position = 1,
-  distancia = 1000,
-  selecionado = false,
+  distance = 1000,
+  selected = false,
 }
 
 function Player:canShoot()
@@ -228,7 +231,7 @@ function Player:move(moviment)
 end
 
 function Player:calcula_distancia()
-  self.distancia = calcula_distancia(self.hitbox_x + self.hitbox_size / 2, self.hitbox_y + self.hitbox_size / 2,
+  self.distance = calcula_distancia(self.hitbox_x + self.hitbox_size / 2, self.hitbox_y + self.hitbox_size / 2,
     ball.hitbox_x, ball.hitbox_y)
 end
 
@@ -260,8 +263,8 @@ function Player:draw()
     },
   }
   sprite_info = sprites[self.direction + 1][flr(self.position)]
-  if self.selecionado then
-    oval(self.shoot_x, self.shoot_y, self.shoot_x + self.shoot_size, self.shoot_y + self.shoot_size, 10)
+  if self.selected then
+    oval(self.shoot_x, self.shoot_y, self.shoot_x + self.shoot_size, self.shoot_y + self.shoot_size, 30)
   end
   spr(sprite_info.sprite, self.x, self.y, sprite_info.flip)
 end
@@ -290,7 +293,8 @@ Team = {
     shirt_c = 7,
     shirt_d = 7,
     short = 5,
-  }
+  },
+  home = true,
 }
 
 function Team:draw_players()
@@ -306,24 +310,24 @@ function Team:draw_players()
 end
 
 function Team:move(player_number)
-  local mais_proximo = nil;
-  local imais_proximo = nil;
+  local nearest = nil;
+  local inearest = nil;
 
   for i, player in ipairs(self.players) do
     player:calcula_distancia()
 
-    if (not mais_proximo) or mais_proximo.distancia > player.distancia then
-      mais_proximo = player
-      imais_proximo = i
+    if (not nearest) or nearest.distance > player.distance then
+      nearest = player
+      inearest = i
     end
 
-    player.selecionado = false
+    player.selected = false
   end
 
-  mais_proximo.selecionado = true
+  nearest.selected = true
 
   for i, player in ipairs(self.players) do
-    if i == imais_proximo then
+    if i == inearest then
       player:move(
         {
           left = btn(0, player_number),
@@ -344,12 +348,23 @@ function Team:new(obj)
 
   obj.players = {}
 
-  x = obj.start or 0
+  local home = obj.home and -1 or 1
+
+  local position = {
+    { x = 160, y = ball.initial_y + (home * 120) - 16 },
+    { x = 210, y = ball.initial_y + (home * 120) - 16 },
+    { x = 275, y = ball.initial_y + (home * 120) - 16 },
+    { x = 325, y = ball.initial_y + (home * 120) - 16 },
+    { x = 160, y = ball.initial_y + (home * 65) - 16 },
+    { x = 210, y = ball.initial_y + (home * 65) - 16 },
+    { x = 275, y = ball.initial_y + (home * 65) - 16 },
+    { x = 325, y = ball.initial_y + (home * 65) - 16 },
+    { x = 210, y = ball.initial_y + (home * 15) - 16 },
+    { x = 275, y = ball.initial_y + (home * 15) - 16 },
+  }
+
   for i = 1, 10, 1 do
-    add(obj.players, Player:new({
-      x = 240 + i * 10,
-      y = 240 + x,
-    }))
+    add(obj.players, Player:new(position[i]))
   end
 
   return obj
@@ -361,7 +376,6 @@ function _init()
 
   home = Team:new({
     name = "Framengo",
-    start = -100,
     colors = {
       shirt_a = 8,
       shirt_b = 5,
@@ -370,7 +384,7 @@ function _init()
       short = 0,
     }
   })
-  away = Team:new({ name = "Cortinas" })
+  away = Team:new({ name = "Cortinas", home = false })
 end
 
 function _update()
