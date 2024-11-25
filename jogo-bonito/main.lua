@@ -1,4 +1,4 @@
-function calcula_distancia(ax, ay, bx, by)
+function calc_distance(ax, ay, bx, by)
   x = abs(ax - bx)
   y = abs(ay - by)
 
@@ -78,7 +78,10 @@ Player = {
   direction = 0,
   position = 1,
   distance = 1000,
+  distance_base = 1000,
   selected = false,
+  base_x = 240,
+  base_y = 240,
 }
 
 function Player:canShoot()
@@ -230,8 +233,32 @@ function Player:move(moviment)
   end
 end
 
-function Player:calcula_distancia()
-  self.distance = calcula_distancia(self.hitbox_x + self.hitbox_size / 2, self.hitbox_y + self.hitbox_size / 2,
+function Player:auto_move()
+  -- if self.distance < 50 and self.distance_base < 100 then
+  --   self:move(
+  --     {
+  --       left = self.hitbox_x > ball.hitbox_x + 10,
+  --       right = self.hitbox_x < ball.hitbox_x - 10,
+  --       up = self.hitbox_y > ball.hitbox_y + 10,
+  --       down = self.hitbox_y < ball.hitbox_y - 10,
+  --     }
+  --   )
+  -- else
+  self:move(
+    {
+      left = self.hitbox_x > self.base_x + 10,
+      right = self.hitbox_x < self.base_x - 10,
+      up = self.hitbox_y > self.base_y + 10,
+      down = self.hitbox_y < self.base_y - 10,
+    }
+  )
+  -- end
+end
+
+function Player:calc_distance()
+  self.distance = calc_distance(self.hitbox_x + self.hitbox_size / 2, self.hitbox_y + self.hitbox_size / 2,
+    ball.hitbox_x, ball.hitbox_y)
+  self.distance_base = calc_distance(self.base_x + self.hitbox_size / 2, self.base_y + self.hitbox_size / 2,
     ball.hitbox_x, ball.hitbox_y)
 end
 
@@ -278,6 +305,8 @@ function Player:new(obj)
   obj.hitbox_y = obj.y + 12
   obj.shoot_x = obj.x + 3
   obj.shoot_y = obj.y + 10
+  obj.base_x = obj.x + 5
+  obj.base_y = obj.y + 12
 
   return obj
 end
@@ -314,7 +343,7 @@ function Team:move(player_number)
   local inearest = nil;
 
   for i, player in ipairs(self.players) do
-    player:calcula_distancia()
+    player:calc_distance()
 
     if (not nearest) or nearest.distance > player.distance then
       nearest = player
@@ -337,6 +366,8 @@ function Team:move(player_number)
             player_number)
         }
       )
+    else
+      player:auto_move()
     end
   end
 end
