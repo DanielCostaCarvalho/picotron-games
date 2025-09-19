@@ -31,4 +31,9 @@ vector2d = {
   mag = function(self)
     return sqrt((self.x * self.x) + (self.y * self.y))
   end,
+  normalize = function(self)
+    mag = self.mag()
+    self.x /= mag
+    self.y /= mag
+  end,
 }

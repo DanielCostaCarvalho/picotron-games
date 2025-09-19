@@ -37,4 +37,10 @@ vector3d = {
   mag = function(self)
     return sqrt((self.x * self.x) + (self.y * self.y) + (self.z * self.z))
   end,
+  normalize = function(self)
+    mag = self.mag()
+    self.x /= mag
+    self.y /= mag
+    self.z /= mag
+  end,
 }
