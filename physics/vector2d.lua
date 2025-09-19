@@ -19,4 +19,16 @@ vector2d = {
     self.x *= scale
     self.y *= scale
   end,
+  dot = function(self, vector)
+    return self.x * vector.x + self.y * vector.y
+  end,
+  perpendicular = function(self)
+    return vector2d:new({
+      x = self.y,
+      y = -self.x,
+    })
+  end,
+  mag = function(self)
+    return sqrt((self.x * self.x) + (self.y * self.y))
+  end,
 }

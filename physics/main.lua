@@ -1,4 +1,4 @@
-include 'vector2d.lua'
+include '/code/physics/vector2d.lua'
 
 position = vector2d:new({ x = 1, y = 0 })
 position:scale(50)
